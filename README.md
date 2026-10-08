@@ -58,19 +58,47 @@ In open-cast iron ore mines, dense fog severely limits visibility on haul roads.
 ## ✨ Features
 
 
-| Feature                       | Description                                                                                                                     |
-|:------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
-| **Live Mine Map**             | Interactive Leaflet map displaying haul roads, blind corners, and real-time vehicle positions.                                  |
-| **Vehicle Tracking**          | Real-time tracking of vehicle position, speed, heading, and operational status.                                                 |
-| **Collision Risk Engine**     | Deterministic pairwise risk evaluation using Time-to-Conflict (TTC) and closing-distance metrics.                               |
-| **Targeted Alerts**           | Identifies the specific vehicle pair involved and explains the reason behind each generated risk alert.                         |
-| **Radar Fallback**            | Independent radar beacons at blind corners detect nearby non-equipped vehicles.                                                 |
-| **State Machine**             | Manages vehicle connectivity through `LIVE → STALE → OFFLINE` states using configurable thresholds.                             |
-| **Anti-Oscillation**          | Hysteresis and debouncing prevent rapid `SAFE ↔ WARNING` state transitions.                                                     |
-| **Demo Scenarios**            | Three scripted scenarios demonstrate normal operation, collision-risk detection, and radar-based fallback detection.            |
-| **Configurable**              | YAML-based configuration allows detection thresholds, timing parameters, and system settings to be adjusted easily.             |
+| Feature                       | Description                                                                                                                           |
+|:------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
+| **Live Mine Map**             | Interactive Leaflet map displaying haul roads, blind corners, and real-time vehicle positions.                                        |
+| **Vehicle Tracking**          | Real-time tracking of vehicle position, speed, heading, and operational status.                                                       |
+| Driver Safety Dashboard       | Driver-focused live view showing nearby vehicle distance, relative direction, and distance-based SAFE, WARNING, and CRITICAL alerts.  |
+| **Collision Risk Engine**     | Deterministic pairwise risk evaluation using Time-to-Conflict (TTC) and closing-distance metrics.                                     |
+| **Targeted Alerts**           | Identifies the specific vehicle pair involved and explains the reason behind each generated risk alert.                               |
+| **Radar Fallback**            | Independent radar beacons at blind corners detect nearby non-equipped vehicles.                                                       |
+| **State Machine**             | Manages vehicle connectivity through `LIVE → STALE → OFFLINE` states using configurable thresholds.                                   |
+| **Anti-Oscillation**          | Hysteresis and debouncing prevent rapid `SAFE ↔ WARNING` state transitions.                                                           |
+| **Demo Scenarios**            | Three scripted scenarios demonstrate normal operation, collision-risk detection, and radar-based fallback detection.                  |
+| **Configurable**              | YAML-based configuration allows detection thresholds, timing parameters, and system settings to be adjusted easily.                   |
 
 ---
+
+## 🚛 Driver Safety Dashboard
+
+The Driver Safety Dashboard provides a simplified, driver-focused view of the mine environment, complementing the centralized Control Room dashboard.
+
+It uses the live vehicle data already available in HaulSight and presents the most relevant nearby vehicle directly on the map.
+
+### Key Capabilities
+
+- **My Vehicle Identification** — Clearly highlights the driver's own vehicle on the mine map.
+- **Conflict Vehicle Highlighting** — Emphasizes the relevant nearby vehicle involved in an active safety condition.
+- **Real-Time Distance Calculation** — Calculates physical vehicle separation using the Haversine formula.
+- **Relative Direction** — Displays whether the relevant vehicle is AHEAD, BEHIND, LEFT, or RIGHT of the driver's vehicle.
+- **Distance-Based Safety Status**:
+  - `> 20 m` → **SAFE**
+  - `> 10 m and ≤ 20 m` → **WARNING**
+  - `≤ 10 m` → **CRITICAL**
+- **Driver-Focused Map** — Highlights the relevant road segments while keeping the map as the primary visual element.
+- **Live Vehicle Filtering** — Stale and offline vehicles are excluded from the current driver safety assessment.
+
+The Driver View is designed to provide the driver with a concise answer to three questions:
+
+> **Who is near me?**  
+> **Where are they relative to me?**  
+> **How urgent is the situation?**
+
+--- 
 
 ## 🚀 Quick Start
 
@@ -171,9 +199,9 @@ haulshight/
 │   │   ├── components/
 │   │   │   ├── layout/          # Header, MainLayout
 │   │   │   ├── map/             # MineMap, VehicleMarker, RadarBeaconMarker
+│   │   │   ├── driver/          # DriverSafetyDashboard
 │   │   │   ├── panels/          # VehicleList, AlertPanel, SystemHealth
 │   │   │   └── ui/              # StatusBadge, RiskBadge
-│   │   └── styles/theme.js     # Color palette
 │   ├── vite.config.js
 │   └── package.json
 └── README.md
