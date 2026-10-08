@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Popup, useMap } from 'react-leaflet';
 import { fetchRoadGraph } from '../../api/client';
 import { useVehicleStore } from '../../stores/vehicleStore';
@@ -21,7 +21,12 @@ function MapUpdater({ vehicles }) {
   return null;
 }
 
-export default function MineMap() {
+export default function MineMap({
+  myVehicleId = null,
+  conflictVehicleId = null,
+  conflictSeverity = null,
+  highlightSegmentIds = [],
+}) {
   const [roadGraph, setRoadGraph] = useState({ nodes: [], segments: [] });
   const vehicles = useVehicleStore((s) => s.vehicles);
   const radarBeacons = useSystemStore((s) => s.radarBeacons);
@@ -30,6 +35,16 @@ export default function MineMap() {
   useEffect(() => {
     fetchRoadGraph().then(setRoadGraph).catch(console.error);
   }, []);
+
+  const highlightedSegments = useMemo(() => {
+    const segmentIds = new Set(
+      highlightSegmentIds.filter((segmentId) =>
+        segmentId && roadGraph.segments.some((segment) => segment.segment_id === segmentId),
+      ),
+    );
+
+    return roadGraph.segments.filter((segment) => segmentIds.has(segment.segment_id));
+  }, [highlightSegmentIds, roadGraph.segments]);
 
   const nodeStatusById = (nodeId) => {
     const rec = nodeHealth.find((n) => n.node_id === nodeId);
@@ -78,6 +93,24 @@ export default function MineMap() {
             </div>
           </Popup>
         </Polyline>
+      ))}
+
+      {/* Driver-focus road segments */}
+      {highlightedSegments.map((seg) => (
+        <Polyline
+          key={`driver-focus-${seg.segment_id}`}
+          positions={[
+            [seg.start_lat, seg.start_lon],
+            [seg.end_lat, seg.end_lon],
+          ]}
+          pathOptions={{
+            color: '#2FA4D7',
+            weight: 8,
+            opacity: 0.95,
+            dashArray: seg.blind_corner ? '8, 4' : null,
+          }}
+          zIndexOffset={1200}
+        />
       ))}
 
       {/* Blind corner zones */}
@@ -156,9 +189,18 @@ export default function MineMap() {
       {/* Vehicle markers */}
       {vehicles
         .filter((v) => v.latitude !== 0 && v.longitude !== 0)
-        .map((vehicle) => (
-          <VehicleMarker key={vehicle.vehicle_id} vehicle={vehicle} />
-        ))}
+        .map((vehicle) => {
+          const isMyVehicle = myVehicleId && vehicle.vehicle_id === myVehicleId;
+          const isConflictVehicle = conflictVehicleId && vehicle.vehicle_id === conflictVehicleId;
+          return (
+            <VehicleMarker
+              key={vehicle.vehicle_id}
+              vehicle={vehicle}
+              emphasis={isMyVehicle ? 'my-vehicle' : isConflictVehicle ? 'conflict' : 'none'}
+              severity={isConflictVehicle ? conflictSeverity || vehicle.risk_level : vehicle.risk_level}
+            />
+          );
+        })}
 
       {/* AI risk-hotspot layer */}
       <HotspotLayer segments={roadGraph.segments} />

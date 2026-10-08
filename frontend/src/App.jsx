@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { connectWebSocket, onMessage, disconnectWebSocket } from './api/websocket';
 import { useVehicleStore } from './stores/vehicleStore';
 import { useAlertStore } from './stores/alertStore';
@@ -8,8 +8,10 @@ import { useNodeStore } from './stores/nodeStore';
 import { fetchRoadGraph, fetchVehicles, fetchActiveAlerts, fetchHealth, fetchBeacons, fetchVisibility, fetchAIHotspots, fetchProduction, fetchRadarAI, fetchScenarioStatus, fetchNodeHealth } from './api/client';
 import Header from './components/layout/Header';
 import MainLayout from './components/layout/MainLayout';
+import DriverSafetyDashboard from './components/driver/DriverSafetyDashboard';
 
 export default function App() {
+  const [view, setView] = useState('control-room');
   const setVehicles = useVehicleStore((s) => s.setVehicles);
   const setActiveAlerts = useAlertStore((s) => s.setActiveAlerts);
   const addAlert = useAlertStore((s) => s.addAlert);
@@ -115,8 +117,32 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-cream overflow-hidden">
-      <Header />
-      <MainLayout />
+      <nav className="shrink-0 flex justify-end gap-1 bg-brown px-4 py-2" aria-label="Dashboard view">
+        <button
+          type="button"
+          aria-pressed={view === 'control-room'}
+          onClick={() => setView('control-room')}
+          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${view === 'control-room' ? 'bg-primary text-white' : 'text-cream/75 hover:bg-white/10 hover:text-cream'}`}
+        >
+          Control Room
+        </button>
+        <button
+          type="button"
+          aria-pressed={view === 'driver'}
+          onClick={() => setView('driver')}
+          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${view === 'driver' ? 'bg-primary text-white' : 'text-cream/75 hover:bg-white/10 hover:text-cream'}`}
+        >
+          Driver View
+        </button>
+      </nav>
+      {view === 'driver' ? (
+        <DriverSafetyDashboard />
+      ) : (
+        <>
+          <Header />
+          <MainLayout />
+        </>
+      )}
     </div>
   );
 }
