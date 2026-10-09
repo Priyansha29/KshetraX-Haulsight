@@ -38,7 +38,7 @@ async def ingest_telemetry(packet: TelemetryPacket) -> dict[str, Any]:
             }
 
     # Check for out-of-order packets
-    if current and current.last_sequence > packet.sequence_number:
+    if current and current.last_sequence >= packet.sequence_number:
         return {
             "status": "rejected",
             "reason": "Out-of-order packet",
