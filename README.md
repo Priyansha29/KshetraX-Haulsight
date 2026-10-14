@@ -339,7 +339,7 @@ Built for **Smart India Hackathon 2026**
 
 | Name                    | Department                                                   |
 |-------------------------|--------------------------------------------------------------|
-| Priyansha Gour (Captain)| Electronics and Telecommunication Engineering (E&TC)         |
+| Priyansha Gour          | Electronics and Telecommunication Engineering (E&TC)         |
 | Dhakshayini Usha R      | Electronics and Telecommunication Engineering (E&TC)         |
 | Mishree Kalaria         | Electronics and Telecommunication Engineering (E&TC)         |       |
 | Harman                  | Computer Science and Engineering (CSE)                       |
